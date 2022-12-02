@@ -21,7 +21,6 @@ class Game : public Application
         scene.addNode(im);
         scene.addNode(world);
         scene.addNode(imlayer);
-        //world.field[4][2] = world.field[5][1] = world.field[3][0] = world.field[4][0] = world.field[5][0] = true;
     }
 
     void onResize() override

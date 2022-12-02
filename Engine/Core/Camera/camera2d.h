@@ -27,4 +27,5 @@ public:
 
     float getWidth() const { return width; }
     float getHeight() const { return height; }
+    glm::vec2 getSize() const { return {width, height}; }
 };

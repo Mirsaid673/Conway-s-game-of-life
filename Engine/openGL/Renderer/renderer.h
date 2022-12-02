@@ -45,6 +45,8 @@ public:
      static void setClearColor(const glm::vec4 &color) { glClearColor(color.r, color.g, color.b, color.a); }
      static void setClearColor(const glm::vec3 &color) { glClearColor(color.r, color.g, color.b, 0.0f); }
 
+     static void setLineWidth(float width) {glLineWidth(width);}
+
      static void enableDepthTest();
      static void disableDepthTest();
 

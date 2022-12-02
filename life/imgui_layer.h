@@ -11,19 +11,20 @@
 class ImguiLayer : public Node
 {
 public:
+    ImGuiIO *io;
+
     void init() override
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-        ImGuiIO &io = ImGui::GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
+        io = &ImGui::GetIO();
+        io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+        io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
         ImGui::StyleColorsDark();
         ImGuiStyle &style = ImGui::GetStyle();
 
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 130");
-
     }
 
     void draw() override
@@ -36,14 +37,21 @@ public:
 
         ImGui::Begin("control");
 
-        if(ImGui::Button("tick"))
+        if (ImGui::Button("tick"))
             world.tick();
         ImGui::SameLine();
 
         ImGui::Checkbox("pause", &world.pause);
         ImGui::SameLine();
-        
+
+        ImGui::Checkbox("grid", &world.grid_enable);
+        ImGui::SameLine();
+
         ImGui::SliderFloat("tps", &world.tps, 0.001, 50);
+        ImGui::SameLine();
+
+        if (ImGui::Button("clear"))
+            world.clear();
 
         ImGui::End();
 

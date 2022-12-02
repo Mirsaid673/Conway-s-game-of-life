@@ -11,6 +11,7 @@ public:
     float tps = 2.0f;
     float elapsed = 0.0f;
     bool pause = true;
+    bool grid_enable = true;
 
     std::vector<std::vector<bool>> field;
     std::vector<std::vector<bool>> buffer;
@@ -37,10 +38,8 @@ public:
                 }
             }
         }
+        clear();
         std::swap(field, buffer);
-        for (size_t x = 0; x < width; x++)
-            for (size_t y = 0; y < height; y++)
-                buffer[x][y] = false;
     }
 
     int getAliveNeighboursCount(const glm::ivec2 &coord)
@@ -79,7 +78,6 @@ public:
     void draw() override
     {
         Transform2d transform;
-        transform.scale(glm::vec2(0.85f));
 
         Program::colored2d.use();
         Program::colored2d.vertexAttrib(VertexAttribs::COLOR, glm::vec3(0));
@@ -96,6 +94,36 @@ public:
                 }
             }
         }
+        if (grid_enable)
+            drawGrid();
+    }
+
+    void drawGrid()
+    {
+        float size = 0.05f;
+
+        Program::colored2d.vertexAttrib(VertexAttribs::COLOR, glm::vec3(0.5f));
+        Transform2d transform;
+        transform.scale({size, camera2d.getHeight()});
+
+        glm::ivec2 min = glm::floor(camera2d.transform.origin - camera2d.getSize() / 2.0f);
+        glm::ivec2 max = glm::floor(camera2d.transform.origin + camera2d.getSize() / 2.0f);
+
+        for (int x = min.x; x <= max.x; x++)
+        {
+            transform.origin = glm::vec2(x - 0.5f, camera2d.transform.origin.y);
+            Program::colored2d.setPVM(camera2d.getPV() * transform.getMatrix());
+            Renderer::drawVAO(quad);
+        }
+
+        Transform2d transform2;
+        transform2.scale({camera2d.getWidth(), size});
+        for (int y = min.y; y <= max.y; y++)
+        {
+            transform2.origin = glm::vec2(camera2d.transform.origin.x, y - 0.5f);
+            Program::colored2d.setPVM(camera2d.getPV() * transform2.getMatrix());
+            Renderer::drawVAO(quad);
+        }
     }
 
 public:
@@ -106,6 +134,12 @@ public:
         return a - (b * glm::floor((float)a / (float)b));
     }
 
+    void clear()
+    {
+        for (size_t x = 0; x < width; x++)
+            for (size_t y = 0; y < height; y++)
+                field[x][y] = false;
+    }
     size_t getWidth() const { return width; }
     size_t getHeight() const { return height; }
     glm::vec2 getSize() const { return {width, height}; }

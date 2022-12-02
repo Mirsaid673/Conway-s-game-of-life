@@ -11,6 +11,9 @@ public:
 
     void update() override
     {
+        if(ImGui::GetIO().WantCaptureMouse)
+            return;
+
         if (input.getMouseButtonPress(GLFW_MOUSE_BUTTON_LEFT))
         {
             glm::ivec2 cursor_world = glm::round(getCursorWorld(input.getCursorPos()) + world.getSize() / 2.0f);
