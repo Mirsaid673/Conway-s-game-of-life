@@ -161,8 +161,36 @@ void Program::setMat4(const char *name, const glm::mat4 &v) const
     glUniformMatrix4fv(getUniformLoc(name), 1, GL_FALSE, &v[0][0]);
 }
 
+void Program::vertexAttrib(uint32_t index, const glm::vec2 &v)
+{
+    glVertexAttrib2fv(index, &v.x);
+}
+
+void Program::vertexAttrib(uint32_t index, const glm::vec3 &v)
+{
+    glVertexAttrib3fv(index, &v.x);
+}
+void Program::vertexAttrib(uint32_t index, const glm::vec4 &v)
+{
+    glVertexAttrib4fv(index, &v.x);
+}
+
+void Program::vertexAttrib(uint32_t index, int v)
+{
+    glVertexAttribI1i(index, v);
+}
+void Program::vertexAttrib(uint32_t index, float v)
+{
+    glVertexAttrib1f(index, v);
+}
+void Program::vertexAttrib(uint32_t index, double v)
+{
+    glVertexAttrib1d(index, v);
+}
+
 Program Program::basic;
 Program Program::basic2d;
+Program Program::colored2d;
 Program Program::skybox;
 Program Program::framebuffer;
 
@@ -172,18 +200,22 @@ void Program::initPrograms()
                  "../Engine/openGL/Program/Shaders/basic.frag");
 
     basic2d.create("../Engine/openGL/Program/Shaders/2d/basic.vert",
-                 "../Engine/openGL/Program/Shaders/2d/basic.frag");
+                   "../Engine/openGL/Program/Shaders/2d/basic.frag");
+
+    colored2d.create("../Engine/openGL/Program/Shaders/2d/colored.vert",
+                   "../Engine/openGL/Program/Shaders/2d/colored.frag");
 
     skybox.create("../Engine/openGL/Program/Shaders/skybox.vert",
                   "../Engine/openGL/Program/Shaders/skybox.frag");
     framebuffer.create("../Engine/openGL/Program/Shaders/framebuffer/basic.vert",
-                  "../Engine/openGL/Program/Shaders/framebuffer/basic.frag");
+                       "../Engine/openGL/Program/Shaders/framebuffer/basic.frag");
 }
 
 void Program::destroyPrograms()
 {
     basic.destroy();
     basic2d.destroy();
+    colored2d.destroy();
     skybox.destroy();
     framebuffer.destroy();
 }

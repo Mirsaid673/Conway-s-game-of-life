@@ -44,11 +44,20 @@ public:
     void setMat3(const char *name, const glm::mat3 &v) const;
     void setMat4(const char *name, const glm::mat4 &v) const;
 
+    void vertexAttrib(uint32_t index, const glm::vec2& v);
+    void vertexAttrib(uint32_t index, const glm::vec3& v);
+    void vertexAttrib(uint32_t index, const glm::vec4& v);
+
+    void vertexAttrib(uint32_t index, int v);
+    void vertexAttrib(uint32_t index, float v);
+    void vertexAttrib(uint32_t index, double v);
+
     static void initPrograms();
     static void destroyPrograms();
 
     static Program basic;
     static Program basic2d;
+    static Program colored2d;
     static Program skybox;
     static Program framebuffer;
 };

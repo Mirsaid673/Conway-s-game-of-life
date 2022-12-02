@@ -50,7 +50,7 @@ public:
 
      static void clearBuffers() { glClear(clear_buffers_bits); };
 
-     static void setProgram(const Program &program) { current_program = &program; }
+     static void setProgram(const Program &program) { current_program = &program; program.use();}
      static void setMaterial(const Material &material);
      static void setTransform(const glm::mat4 &model);
      static void setTransform2d(const glm::mat3 &model);

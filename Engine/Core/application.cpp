@@ -50,7 +50,7 @@ int Application::run()
         if (window.resized())
         {
             Renderer::setViewport(window.getSize());
-            on_resize();
+            onResize();
         }
         Renderer::clearBuffers();
 

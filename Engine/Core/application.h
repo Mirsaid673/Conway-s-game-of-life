@@ -10,7 +10,7 @@ protected:
     virtual void update(){};
     virtual void draw(){};
     virtual void determinate(){};
-    virtual void on_resize(){};
+    virtual void onResize(){};
 
 public:
     void set_scene(Scene& scene);
