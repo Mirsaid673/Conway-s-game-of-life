@@ -48,8 +48,8 @@ public:
     RID getDeafultButtonQuad() const { return default_button_quad; }
 
     //* textures
-    RID createTexture(const Image &image, uint32_t mipmap_levels = 0, bool gamma_correcred = false);
-    RID createTexture(const char *file, uint32_t mipmap_levels = 0, bool gamma_correcred = false);
+    RID createTexture(const Image &image, uint32_t mipmap_levels = 0, Texture::InternalFormat in_f = Texture::InternalFormat::NOTHING);
+    RID createTexture(const char *file, uint32_t mipmap_levels = 0, Texture::InternalFormat in_f = Texture::InternalFormat::NOTHING);
     Texture &getTexture(RID id) { return textures[id]; }
 
     void textureFilter(RID id, Texture::Filter filter) { textures[id].filter(filter); }
@@ -58,13 +58,13 @@ public:
 
     //* cube maps
 
-    RID createCubeMap(const std::array<Image, 6>& images, uint32_t mipmap_levels, bool gamma_correcred = false);
-    RID createCubeMap(const std::array<const char*, 6>& files, uint32_t mipmap_levels, bool gamma_correcred = false);
+    RID createCubeMap(const std::array<Image, 6> &images, uint32_t mipmap_levels, bool gamma_correcred = false);
+    RID createCubeMap(const std::array<const char *, 6> &files, uint32_t mipmap_levels, bool gamma_correcred = false);
 
     CubeMap &getCubeMap(RID id) { return cube_maps[id]; }
     void cubeMapFilter(RID id, Texture::Filter filter) { cube_maps[id].filter(filter); }
     void cubeMapWrapMode(RID id, Texture::WrapMode wrap) { cube_maps[id].wrapMode(wrap); }
-    void cubeMapMipmaps(RID id) { cube_maps[id].mipmaps();}
+    void cubeMapMipmaps(RID id) { cube_maps[id].mipmaps(); }
 
     GPU();
     ~GPU();

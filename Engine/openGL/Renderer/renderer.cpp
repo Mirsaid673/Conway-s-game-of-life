@@ -68,7 +68,7 @@ void Renderer::drawFramebuffer(const Framebuffer &fbo)
     glDisable(GL_DEPTH_TEST);
 
     framebuffer_program->use();
-    fbo.use();
+    fbo.getTexture().use();
     drawVAO(GPU::gpu.getDeafultQuad());
     if (isDepthTestEnabled)
         glEnable(GL_DEPTH_TEST);

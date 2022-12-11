@@ -94,25 +94,25 @@ RID GPU::loadMesh(const Mesh2d &mesh)
     return vao;
 }
 
-RID GPU::createTexture(const Image &image, uint32_t mipmap_levels, bool gamma_correcred)
+RID GPU::createTexture(const Image &image, uint32_t mipmap_levels, Texture::InternalFormat in_f)
 {
-    textures.emplace_back(image, mipmap_levels, gamma_correcred);
+    textures.emplace_back(image, mipmap_levels, in_f);
     return textures.size() - 1;
 }
 
-RID GPU::createTexture(const char *file, uint32_t mipmap_levels, bool gamma_correcred)
+RID GPU::createTexture(const char *file, uint32_t mipmap_levels, Texture::InternalFormat in_f)
 {
-    textures.emplace_back(file, mipmap_levels, gamma_correcred);
+    textures.emplace_back(file, mipmap_levels, in_f);
     return textures.size() - 1;
 }
 
-RID GPU::createCubeMap(const std::array<Image, 6>& images, uint32_t mipmap_levels, bool gamma_correcred)
+RID GPU::createCubeMap(const std::array<Image, 6> &images, uint32_t mipmap_levels, bool gamma_correcred)
 {
     cube_maps.emplace_back(images, mipmap_levels, gamma_correcred);
     return cube_maps.size() - 1;
 }
 
-RID GPU::createCubeMap(const std::array<const char*, 6>& files, uint32_t mipmap_levels, bool gamma_correcred)
+RID GPU::createCubeMap(const std::array<const char *, 6> &files, uint32_t mipmap_levels, bool gamma_correcred)
 {
     cube_maps.emplace_back(files, mipmap_levels, gamma_correcred);
     return cube_maps.size() - 1;

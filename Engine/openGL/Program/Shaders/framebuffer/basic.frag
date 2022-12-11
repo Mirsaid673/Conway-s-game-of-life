@@ -9,5 +9,5 @@ uniform sampler2D tex;
 void main()
 {
     float cr = 1;
-    out_color = pow(texture(tex, o_tex_coord), vec4(cr));
+    out_color = texture(tex, o_tex_coord);
 }

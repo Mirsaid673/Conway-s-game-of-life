@@ -27,13 +27,13 @@ public:
         GREEN = GL_GREEN,
         BLUE = GL_BLUE,
         ALPHA = GL_ALPHA,
-        RG = GL_RG,
         RGB = GL_RGB,
         RGBA = GL_RGBA,
+        RG = GL_RG,
     };
 
 public:
-    void *data;
+    void *data = nullptr;
 
     uint32_t width;
     uint32_t height;

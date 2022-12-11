@@ -1,49 +1,44 @@
 #include "texture.h"
 
-Texture::Texture(const Image &image, uint32_t mipmap_levels, bool gamma_correcred)
+Texture::Texture(const Image &image, uint32_t mipmap_levels, InternalFormat internal_format)
 {
-    create(image, mipmap_levels, gamma_correcred);
+    create(image, mipmap_levels, internal_format);
 }
 
-Texture::Texture(const char *file, uint32_t mipmap_levels, bool gamma_correcred)
+Texture::Texture(const char *file, uint32_t mipmap_levels, InternalFormat internal_format)
 {
-    create(file, mipmap_levels, gamma_correcred);
+    create(file, mipmap_levels, internal_format);
 }
 
-void Texture::create(const char *file, uint32_t mipmap_levels, bool gamma_correcred)
+void Texture::create(const char *file, uint32_t mipmap_levels, InternalFormat internal_format)
 {
     Image im(file);
 
-    create(im, mipmap_levels, gamma_correcred);
+    create(im, mipmap_levels, internal_format);
     im.free();
 }
 
-void Texture::create(const Image &i, uint32_t mipmap_levels, bool gamma_correcred)
+void Texture::create(const Image &i, uint32_t mipmap_levels, InternalFormat internal_format)
 {
-    ;
-
+    img = i;
+    this->internal_format = internal_format;
     glGenTextures(1, &id);
     bind();
 
     uint32_t width = i.getWidth();
     uint32_t height = i.getHeight();
 
-    GLenum internal_format = GL_RGB8;
-    if (i.getChanbelNum() == 4)
-        internal_format = GL_RGBA8;
-    if (gamma_correcred)
-    {
-        if (internal_format == GL_RGB8)
-            internal_format = GL_SRGB8;
-        else if (internal_format == GL_RGBA8)
-            internal_format = GL_SRGB8_ALPHA8;
-    }
-
-    glTexStorage2D(GL_TEXTURE_2D, 1 + mipmap_levels, internal_format, width, height);
+    glTexStorage2D(GL_TEXTURE_2D, 1 + mipmap_levels, getImageInternalFormat(internal_format), width, height);
     if (i.getData())
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, i.getFormat(), i.getType(), i.getData());
 
     unbind();
+}
+
+void Texture::subimage(const glm::ivec2 &coord, const glm::ivec2 &size, uint8_t *data)
+{
+    bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, coord.x, coord.y, size.x, size.y, getFormat(), img.getType(), data);
 }
 
 void Texture::destroy() const

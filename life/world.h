@@ -3,70 +3,40 @@
 #include "../Engine/Core/application.h"
 #include <vector>
 #include <glm/glm.hpp>
+#include "theme.h"
 
 class World : public Node
 {
 public:
-    friend class Game;
+    Framebuffer field;
+    Framebuffer buffer;
+
     float tps = 2.0f;
     float elapsed = 0.0f;
     bool pause = true;
     bool grid_enable = true;
 
-    std::vector<std::vector<bool>> field;
-    std::vector<std::vector<bool>> buffer;
     size_t width;
     size_t height;
 
     void tick()
     {
-        for (size_t x = 0; x < width; x++)
-        {
-            for (size_t y = 0; y < height; y++)
-            {
-                glm::ivec2 current_coord(x, y);
-                int alive_neighs = getAliveNeighboursCount(current_coord);
-                if (getCell(current_coord))
-                {
-                    if (alive_neighs == 2 || alive_neighs == 3)
-                        setCellBuffer(current_coord, true);
-                }
-                else
-                {
-                    if (alive_neighs == 3)
-                        setCellBuffer(current_coord, true);
-                }
-            }
-        }
-        clear();
-        std::swap(field, buffer);
-    }
+        Renderer::pushDrawTarget(buffer);
 
-    int getAliveNeighboursCount(const glm::ivec2 &coord)
-    {
-        static const glm::ivec2 offsets[8] =
-            {
-                glm::ivec2(-1, -1),
-                glm::ivec2(-1, 0),
-                glm::ivec2(-1, 1),
-                glm::ivec2(1, -1),
-                glm::ivec2(1, 0),
-                glm::ivec2(1, 1),
-                glm::ivec2(0, -1),
-                glm::ivec2(0, 1),
-            };
+        calculate_program.use();
+        field.getTexture().use();
+        Renderer::drawVAO(GPU::gpu.getDeafultQuad());
 
-        int count = 0;
-        for (auto &offset : offsets)
-            count += getCell(coord + offset);
+        Renderer::popDrawTarget();
 
-        return count;
+        std::swap(buffer, field);
     }
 
     void update() override
     {
         if (pause)
             return;
+
         elapsed += Time::delta_time;
         if (elapsed >= 1 / tps)
         {
@@ -78,22 +48,16 @@ public:
     void draw() override
     {
         Transform2d transform;
+        transform.scale(glm::vec2(width, height));
+        transform.origin = glm::vec2(-0.5f);
 
-        Program::colored2d.use();
-        Program::colored2d.vertexAttrib(VertexAttribs::COLOR, glm::vec3(0));
+        program.use();
+        program.setVec3("alive_color", Theme::alive_color);
+        program.setVec3("dead_color", Theme::dead_color);
+        field.getTexture().use();
+        program.setPVM(camera2d.getPV() * transform.getMatrix());
+        Renderer::drawVAO(quad);
 
-        for (size_t x = 0; x < width; x++)
-        {
-            for (size_t y = 0; y < height; y++)
-            {
-                if (field[x][y])
-                {
-                    transform.origin = glm::vec2(x, y) - glm::vec2(width, height) / 2.0f;
-                    Program::colored2d.setPVM(camera2d.getPV() * transform.getMatrix());
-                    Renderer::drawVAO(quad);
-                }
-            }
-        }
         if (grid_enable)
             drawGrid();
     }
@@ -102,18 +66,19 @@ public:
     {
         float size = 0.05f;
 
-        Program::colored2d.vertexAttrib(VertexAttribs::COLOR, glm::vec3(0.5f));
+        Program::colored2d.use();
+        Program::colored2d.vertexAttrib(VertexAttribs::COLOR, Theme::grid_color);
         Transform2d transform;
         transform.scale({size, camera2d.getHeight()});
 
         glm::ivec2 min = glm::floor(camera2d.transform.origin - camera2d.getSize() / 2.0f);
-        glm::ivec2 max = glm::floor(camera2d.transform.origin + camera2d.getSize() / 2.0f);
+        glm::ivec2 max = glm::ceil(camera2d.transform.origin + camera2d.getSize() / 2.0f);
 
         for (int x = min.x; x <= max.x; x++)
         {
             transform.origin = glm::vec2(x - 0.5f, camera2d.transform.origin.y);
             Program::colored2d.setPVM(camera2d.getPV() * transform.getMatrix());
-            Renderer::drawVAO(quad);
+            Renderer::drawVAO(GPU::gpu.getDeafultQuad());
         }
 
         Transform2d transform2;
@@ -122,36 +87,77 @@ public:
         {
             transform2.origin = glm::vec2(camera2d.transform.origin.x, y - 0.5f);
             Program::colored2d.setPVM(camera2d.getPV() * transform2.getMatrix());
-            Renderer::drawVAO(quad);
+            Renderer::drawVAO(GPU::gpu.getDeafultQuad());
         }
     }
 
 public:
-    World(size_t w, size_t h) : width(w), height(h), field(w, std::vector<bool>(h, false)), buffer(w, std::vector<bool>(h, false)) {}
-
-    size_t mod(int a, size_t b)
+    void init() override
     {
-        return a - (b * glm::floor((float)a / (float)b));
+        Image img;
+        img.width = width;
+        img.height = height;
+        img.format = Image::Format::RED;
+        img.data_type = Image::DataType::UNSIGNED_BYTE;
+        Texture::InternalFormat in_f = Texture::InternalFormat::UINTEGER;
+
+        field.create(img, Framebuffer::Type::TEXRUE, in_f);
+        buffer.create(img, Framebuffer::Type::TEXRUE, in_f);
+        field.getTexture().filter(Texture::Filter::NEAREST);
+        buffer.getTexture().filter(Texture::Filter::NEAREST);
+        field.getTexture().wrapMode(Texture::WrapMode::REPEAT);
+        buffer.getTexture().wrapMode(Texture::WrapMode::REPEAT);
+
+        clear();
+        buffer.bind();
+        Renderer::clearBuffers();
+        Framebuffer::bindMain();
+    }
+    World(size_t w, size_t h) : width(w), height(h) {}
+    ~World()
+    {
+        field.destroy();
+        buffer.destroy();
+    }
+
+    void flipValue(const glm::ivec2 &coord)
+    {
+        uint8_t data;
+        field.readPixels(coord, glm::ivec2(1), &data);
+
+        data = data ^ 1;
+
+        field.getTexture().subimage(coord, glm::ivec2(1), &data);
     }
 
     void clear()
     {
-        for (size_t x = 0; x < width; x++)
-            for (size_t y = 0; y < height; y++)
-                field[x][y] = false;
+        field.bind();
+        Renderer::clearBuffers();
+        field.unbind();
     }
     size_t getWidth() const { return width; }
     size_t getHeight() const { return height; }
     glm::vec2 getSize() const { return {width, height}; }
-    int getCell(const glm::ivec2 &coord) { return static_cast<int>(field[mod(coord.x, width)][mod(coord.y, height)]); }
-    void setCellBuffer(const glm::ivec2 &coord, bool value) { buffer[coord.x][coord.y] = value; }
-    void flipValue(const glm::ivec2 &coord) { field[coord.x][coord.y] = !field[coord.x][coord.y]; }
 
+public:
+    static Program program;
+    static Program calculate_program;
     static RID quad;
     static void initialize()
     {
-        quad = GPU::gpu.loadMesh(ResourceManager::createQuadMesh(glm::vec2(-0.5f, -0.5f), glm::vec2(0.5f, 0.5f)));
+        program.create("../Engine/openGL/Program/Shaders/2d/basic.vert", "../life/resources/shader.frag");
+        calculate_program.create("../Engine/openGL/Program/Shaders/framebuffer/basic.vert", "../life/resources/calculate_shader.frag");
+        quad = GPU::gpu.loadMesh(ResourceManager::createQuadMesh(glm::vec2(-0.5), glm::vec2(0.5)));
+    }
+
+    static void determinate()
+    {
+        program.destroy();
+        calculate_program.destroy();
     }
 };
 
+Program World::program;
+Program World::calculate_program;
 RID World::quad;
