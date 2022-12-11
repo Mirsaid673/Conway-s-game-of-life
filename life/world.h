@@ -94,8 +94,9 @@ public:
 public:
     void init() override
     {
+        int new_width = width / 8;
         Image img;
-        img.width = width;
+        img.width = new_width;
         img.height = height;
         img.format = Image::Format::RED;
         img.data_type = Image::DataType::UNSIGNED_BYTE;
@@ -123,11 +124,13 @@ public:
     void flipValue(const glm::ivec2 &coord)
     {
         uint8_t data;
-        field.readPixels(coord, glm::ivec2(1), &data);
+        glm::ivec2 new_coord = glm::ivec2(coord.x / 8, coord.y);
+        field.readPixels(new_coord, glm::ivec2(1), &data);
 
-        data = data ^ 1;
+        int bit = coord.x % 8;
+        flipBit(data, bit);
 
-        field.getTexture().subimage(coord, glm::ivec2(1), &data);
+        field.getTexture().subimage(new_coord, glm::ivec2(1), &data);
     }
 
     void clear()
@@ -139,6 +142,11 @@ public:
     size_t getWidth() const { return width; }
     size_t getHeight() const { return height; }
     glm::vec2 getSize() const { return {width, height}; }
+    void flipBit(uint8_t &data, int bit)
+    {
+        uint8_t mask = 1 << bit;
+        data ^= mask;
+    }
 
 public:
     static Program program;

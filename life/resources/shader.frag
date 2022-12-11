@@ -11,8 +11,13 @@ uniform usampler2D tex;
 
 void main()
 {
-    uint value = texture(tex, o_tex_coord).r;
+    float tex_size_x = textureSize(tex, 0).x * 8.0f;
+    highp int x_coord = int(tex_size_x * o_tex_coord.x);
+    int bit = x_coord % 8;
 
-    out_color.rgb = value == 1u ? alive_color : dead_color;
+    uint value = texture(tex, o_tex_coord).r;
+    value &= (1u << bit);
+
+    out_color.rgb = value != 0u ? alive_color : dead_color;
     out_color.a = 1;
 }
