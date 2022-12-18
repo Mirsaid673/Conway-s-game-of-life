@@ -64,7 +64,7 @@ public:
 
     void drawGrid()
     {
-        float size = 0.05f;
+        float size = Theme::grid_width;
 
         Program::colored2d.use();
         Program::colored2d.vertexAttrib(VertexAttribs::COLOR, Theme::grid_color);
