@@ -38,4 +38,5 @@ public:
 
     static void init();
     static void cleanup();
+    static void debug();
 };

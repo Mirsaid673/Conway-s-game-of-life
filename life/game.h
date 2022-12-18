@@ -1,9 +1,9 @@
 #pragma once
 
 #include "glob.h"
-#include "world.h"
 #include "imgui_layer.h"
 #include "input_manager.h"
+#include "world.h"
 
 class Game : public Application
 {
@@ -13,7 +13,7 @@ class Game : public Application
     void init() override
     {
         World::initialize();
-        Renderer::setClearColor({1, 1, 1, 1});
+        Renderer::setClearColor(glm::vec3(0));
         float asp = (float)window.getWidth() / (float)window.getHeight() * im.camera_scale;
         camera2d.ortho(-asp, asp, im.camera_scale, -im.camera_scale);
         camera2d.transform.origin = glm::vec2(0.5f);
@@ -23,14 +23,19 @@ class Game : public Application
         scene.addNode(imlayer);
     }
 
-    void onResize() override
+    void determinate() override
     {
-        im.resizeCamera();
+        World::determinate();
     }
 
     void update() override
     {
         if (input.getKeyDown(GLFW_KEY_ESCAPE))
             running = false;
+    }
+
+    void onResize() override
+    {
+        im.resizeCamera();
     }
 };
