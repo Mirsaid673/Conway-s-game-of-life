@@ -9,7 +9,7 @@ void Application::app_init()
 {
     Window::init();
 
-    window.create(640, 640, "title");
+    window.create(800, 600, "title");
     window.makeCurrent();
     input.init(window);
     Time::init();

@@ -1,29 +1,28 @@
 #pragma once
 
-#include "../Engine/Core/application.h"
 #include "physics.h"
+#include "../Engine/Core/application.h"
 
-class Dino : public Node, public Collider
+class Enemy : public Node, public Collider
 {
 private:
     RID quad;
     Material m;
     Transform2d transform;
     b2Body *body;
+    float speed = 5.f;
 
 public:
-    bool game_over = false;
-    bool grounded = true;
-
-    Dino()
+    Enemy()
     {
-        id = Collider::ID::DINO;
-        glm::vec2 pos = {-4, -3};
+        id = Collider::ID::ENEMY;
+     
+        glm::vec2 pos = {4, -3};
         glm::vec2 size = {1, 1};
 
         m.program = &Program::basic2d;
         Image::setFlipOnLoad(true);
-        m.texture = GPU::gpu.createTexture("../dino/resource/hero.jpg");
+        m.texture = GPU::gpu.createTexture("../dino/resource/enemy.jpg");
         GPU::gpu.textureFilter(m.texture, Texture::Filter::NEAREST);
         GPU::gpu.textureWrapMode(m.texture, Texture::WrapMode::MIRRORED_REPEAT);
         quad = GPU::gpu.getDeafultQuad();
@@ -44,17 +43,10 @@ public:
 
         b2FixtureDef fixture;
         fixture.shape = &shape;
-        fixture.density = 1.0f;
-        fixture.friction = 0.3f;
 
         body = physics.createBody(&def);
 
         body->CreateFixture(&fixture);
-        b2MassData m;
-        m.mass = 1;
-        m.center = {0, 0};
-        m.I = 0;
-        body->SetMassData(&m);
     }
 
     void update() override
@@ -62,21 +54,16 @@ public:
         b2Vec2 pos = body->GetPosition();
         transform.origin = {pos.x, pos.y};
 
-        if (input.getKeyDown(GLFW_KEY_SPACE) && grounded)
-        {
-            grounded = false;
-            body->ApplyForceToCenter({0, 825}, true);
-        }
+        transform.origin -= glm::vec2(speed * Time::delta_time, 0);
+        if(transform.origin.x <= -5.0f)
+            transform.origin.x = 5.0;
+
+        body->SetTransform({transform.origin.x, transform.origin.y}, 0.0f);
     }
 
     void onColliderEnter(b2Fixture *other, b2Contact *cnt) override
     {
-        if (((Collider *)other->GetBody()->GetUserData().pointer)->id == Collider::ID::GROUND) // if ground
-            grounded = true;
-        else
-            game_over = true;
     }
-
     void draw() override
     {
         Renderer::setMaterial(m);
