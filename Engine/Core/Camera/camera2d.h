@@ -15,6 +15,7 @@ public:
     Camera2d() : proj(1.0f) {}
 
     void ortho(float left, float right, float top, float bottom);
+    void ortho(float width, float height);
 
     glm::mat3 getView() const;
     glm::mat3x2 getView3x2() const;

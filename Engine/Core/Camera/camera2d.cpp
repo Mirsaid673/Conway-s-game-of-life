@@ -1,5 +1,10 @@
 #include "camera2d.h"
 
+void Camera2d::ortho(float width, float height)
+{
+    ortho(-width / 2.0f, width / 2.0f, height / 2.0f, -height / 2.0f);
+}
+
 void Camera2d::ortho(float left, float right, float top, float bottom)
 {
     width = right - left;

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "life/game.h"
+#include "dino/game.h"
 
 Application *app;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/global.h"
+#include "global.h"
 #include <spdlog/spdlog.h>
 
 class Application
