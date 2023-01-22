@@ -20,11 +20,7 @@ void Node::removeChild(Node &child)
         childs.erase(c);
     }
 }
-void Node::removeChild(size_t index)
-{
-    childs[index]->node_destroy();
-    childs.erase(childs.begin() + index);
-}
+
 void Node::removeParent()
 {
     parent->removeChild(*this);

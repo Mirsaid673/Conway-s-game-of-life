@@ -15,6 +15,7 @@ void Application::app_init()
     Time::init();
 
     Renderer::init();
+    window.debug();
 
     Renderer::setViewport(window.getSize());
     Renderer::setCamera(camera);

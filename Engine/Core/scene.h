@@ -10,12 +10,12 @@ private:
 public:
     void addNode(Node &node);
     void removeNode(Node &node);
-    void removeNode(size_t index) { root.getChilds().erase(root.getChilds().begin() + index); }
+    //void removeNode(size_t index) { root.getChilds().erase(root.getChilds().begin() + index); }
 
-    std::vector<Node *> &getNodes() { return root.getChilds(); }
-    const std::vector<Node *> &getNodes() const { return root.getChilds(); }
+    std::list<Node *> &getNodes() { return root.getChilds(); }
+    const std::list<Node *> &getNodes() const { return root.getChilds(); }
 
-    Node &operator[](size_t index) { return root[index]; }
+    //Node &operator[](size_t index) { return root[index]; }
 
     void update();
     void draw();
